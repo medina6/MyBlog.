@@ -17,7 +17,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        representation['images'] = PostImageSerializer(instance.image.all(),
+        representation['images'] = PostImageSerializer(instance.images.all(),
                                                        many=True, context=self.context).data
         return representation
 
@@ -38,6 +38,7 @@ class PostImageSerializer(serializers.ModelSerializer):
             else:
                 url = ''
             return url
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['images'] = self._get_image_url(instance)
