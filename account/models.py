@@ -6,11 +6,12 @@ from django.db import models
 class MyUserManager(BaseUserManager):
     use_in_migrations = True
 
-    def _create_user(self, email, password, **extra_fields):
+    def create_user(self, email, password, **extra_fields):
         email = self.normalize_email(email)
         user = self.model(email=email)        # book = Book('title='bla bla, author_id=3, category='comedy) - >book.save()
         user.set_password(password)
-        # user.create_activation_code()
+        user.create_activation_code()
+        print(user.activation_code)
         user.save(using=self._db)
         return user
 
@@ -36,10 +37,22 @@ class MyUser(AbstractUser):
 
     objects = MyUserManager()
 
-    def str(self):
+    def __str__(self):
         return self.email
 
+    def create_activation_code(self):
+        """шифрование
+        1. hashlib.md5(self.email + str(self.id)).encode()  -> hexdigest()
+        2. get_random_string(50, allowed_char=['which symbols are allowed in this string'])
+        3. datetime.datetime.now() or time.time() + timestamp() 01.01.1978
+        """
+
+        import hashlib
+        string = self.email + str(self.id)
+        encode_string = string.encode()
+        md5_object = hashlib.md5(encode_string)
+        activation_code = md5_object.hexdigest()
+        self.activation_code = activation_code
 
 
 
-#TODO: create activation code
